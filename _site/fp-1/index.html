@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+<meta name="generator" content="pandoc">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="author" content="Grace Yu">
+
+<meta name="dcterms.date" content="2020-03-30 00:00:00 -0700">
+
+
+
+<title>Functional Programming Part 1: SML Basics (and Intro) – Gyudon</title>
+
+
+<!-- TODO(jez): canonical URL -->
+<!-- TODO(jez): OpenGraph tags -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/font-et-book/0.1/et-book.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!-- -->
+
+
+
+<!--[if lt IE 9]>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+<![endif]-->
+
+
+  
+    <link rel="icon" sizes="16x16" href="/assets/images/favicon.ico">
+  
+    <link rel="stylesheet" href="/assets/css/extras.css">
+  
+
+
+
+
+</head>
+<body>
+  
+
+
+
+
+
+  <article>
+    
+  <header>
+    <h1 class="title">Functional Programming Part 1: SML Basics (and Intro)</h1>
+    
+    
+      <p class="byline">March 30, 2020</p>
+    
+  </header>
+
+
+
+
+    <p>Those of you who know me are probably aware of this: I was a TA for CMU’s 15-150 Functional Programming course,
+and that experience is one that is near and dear to my heart and central to my college experience. I TA’d for three
+semesters total, with my last semester in junior spring (S19) also being when I was one of our head TAs.</p>
+
+<p>Joining 15-150 staff changed my life. I loved my time there, and I loved teaching the material. Now that I’ve graduated and I’ve started
+working, I was looking back and musing about how much this course and the material used to mean to me.</p>
+
+<p>It’s still something important, and so I wanted to revisit it. I like to think I know the material very well,
+but now that I’m not using it everyday, I’m starting to definitely feel holes forming in my knowledge. So I’d like to
+get all of it out there. Think of these as recitations. I’m hoping to go through all of the material I can still remember from the course,
+and hopefully this is helpful to any student out there looking for some material on functional programming. And also hopefully this is helpful to me, as I go and understand how my background in functional programming can help me be a better software engineer now that I’m out of the academic world. It’s been a bit of a difficult spot right now as I try to understand functional programming in a non-pure and practical sense, and one of my coworkers who has been very kind in mentoring me and answering questions has inspired me to delve into reconciling that. So here goes.</p>
+
+<p>These write-ups and videos will be in SML, and feel free to send me feedback by email. All of these are from my course notes. I’m assuming that the reader has basic programming knowledge.</p>
+
+<h1 id="video-tbd">Video (TBD)</h1>
+
+<p>I’ll also record a video soon. I promise. I’ll link it here when it’s finished.</p>
+
+<h1 id="on-to-the-write-up">On to the write-up!</h1>
+
+<h2 id="a-bit-about-sml-and-some-of-my-thoughts-about-functional-programming">A bit about SML and some of my thoughts about functional programming</h2>
+
+<p>SML is a functional programming language you’ve probably never heard of (other examples of functional programming languages you might have seen around include OCaml or Haskell) – and that probably makes sense, as its popularity is mostly among compiler writers, theorem provers, and programming language theory researchers. Why is that? It has a <a href="http://smlfamily.github.io/sml97-defn.pdf">fully formalized specification</a> with its typing rules and operational semantics. A language’s typing rules explain how the language’s type system assigns types to different expressions. It’s the grammar rules you have to follow in order to construct a valid sentence in your language. In type theory, we describe a type system through a set of inference rules which explain how that assigning happens. In contrast to thinking of the language’s typing rules as the language’s grammar, operational semantics are the meaning of the language. They are the way in which properties such as correctness or safety of a program can be formally verified – for example, I could tell you, once given an expression in SML, what are the next valid steps you can take to evaluate the expression (compute its value). If you were to give me <code class="language-plaintext highlighter-rouge">3 + 4</code>, I will tell you that the next step is to evaluate to <code class="language-plaintext highlighter-rouge">7</code> – this is an example of structural operation semantics, which will again use inference rules to describe the individual steps of computation that can take place. The type systems and the operational semantics are not two divorced ideas: an example of where these two could overlap is with the concept of something being <em>type safe</em>. In a type-safe language, if a program is well-typed, it will not cause run-time errors – so look, a guarantee about a program’s behavior that comes from its type system! As a fun fact, SML is proven to be <em>type safe</em>.</p>
+
+<p>This seems like a lot of jargon. And honestly, for the average person, it probably is. But, it’s a great language to start with because it’ll branch very naturally into more complicated topics in type theory, programming languages, compilers, and much more. I’ll go with SML though because it’s what I know. I am by no means an expert in functional programming; I only know the course material well. I’d like to learn more. Hopefully we can learn together.</p>
+
+<p>Some other quick things about SML that I won’t delve into (but is fun to share if you did know these topics right now) is that it is statically-typed and has type inference, , pattern-matching, eager evaluation, currying, algebraic types, exception handling, and parametric polymorphism. SML is not a completely pure functional language and does allow some side-effects – side-effects being when a function or expression modifies a state value outside of its local environment (an example of side-effects include modifying global variables, mutating an argument that was passed by reference, or performing I/O operations). Side-effects are very powerful constructs, but should be used carefully: it makes a program’s behavior depend on when certain operations took place and will complicate debugging. In most cases, when you fully understand any side-effects your program incurs, using state-modifying expressions is straightforward. In complicated cases though, such as debugging concurrent code, you’ll be left scratching your head in wild bewilderment over Heisenbugs. So, side-effects do exist in SML but we typically will avoid them.</p>
+
+<p>When I was first learning about SML and functional programming, it wasn’t ever apparent to me exactly what functional programming was. So let’s talk about that briefly, because I think it helps frame one’s mindset when trying to tackle these topics. It’s a programming paradigm. A style of programming. In this style, we treat computation as the evaluation of expressions (mathematical functions) – this is in contrast to statements in imperative programming languages which express some action to be carried out. Thinking of our tasks in terms of functions will allow us to add abstractions, which will often give us elegant solutions. Functional programming also avoids creating side-effects, so calling a function with the same arguments will always give us the same result (as Einstein supposedly once said: “The definition of insanity is doing the same thing over and over again, but expecting different results” – so this is very sane behavior, is it not?). I’m not going to sit here and be preachy about side-effects, because they absolutely are powerful and useful tools. But eliminations to changes in state that don’t depend on the function’s input does make programs written in this style much more straightforward to understand. Ease of understanding is a very practical and crucial value that’s often understated in the software development world. This is a good thing.</p>
+
+<p>I work as a software engineer, and I generally don’t ever program in SML. But, there are still aspects from the functional programming paradigm that I and others on my team use on a daily basis or see in other languages and can then quickly understand. I’d often have students who struggled with understanding why our course was useful especially if they didn’t plan on going down the hardcore PL theory route. To them, I’d say: learning functional programming is useful, because it will teach you how to be a better problem solver and a cleaner coder. It will give you solid foundations. I’m also trying to remind myself of this, so hopefully I’m also successful in proving to myself that this claim is true.</p>
+
+<p>With that, let’s dive into some basics of SML.</p>
+
+<h2 id="expressions">Expressions</h2>
+
+<p>As I mentioned earlier, the basic unit in SML is an expression. An expression is different from an imperative statement (where an imperative statement conveys an intended action – expressions have no tie to instructions but are instead mathematical statements). Here are some examples of expressions:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">3</code></li>
+  <li><code class="language-plaintext highlighter-rouge">3 + 7</code></li>
+  <li><code class="language-plaintext highlighter-rouge">(3 + 7) * 10 div 3</code></li>
+  <li><code class="language-plaintext highlighter-rouge">100 div 0</code></li>
+  <li><code class="language-plaintext highlighter-rouge">(3 + 7) * 10 / 3</code></li>
+  <li><code class="language-plaintext highlighter-rouge">"100"</code></li>
+  <li><code class="language-plaintext highlighter-rouge">"100" ^ "100"</code></li>
+  <li><code class="language-plaintext highlighter-rouge">"100" + 100</code></li>
+  <li><code class="language-plaintext highlighter-rouge">intToString 100</code></li>
+  <li><code class="language-plaintext highlighter-rouge">if true then 3 else 5</code></li>
+  <li><code class="language-plaintext highlighter-rouge">let val x = 3 in x + 5 end</code></li>
+  <li><code class="language-plaintext highlighter-rouge">let val x = 3 in case x of 3 =&gt; 5 | _ =&gt; 10 end</code></li>
+</ul>
+
+<p>Some of these expressions are more complicated than others. Anything which doesn’t include valid
+syntax such as <code class="language-plaintext highlighter-rouge">lskjd30qjwrlaksdjlk</code> or <code class="language-plaintext highlighter-rouge">3 dvi 0</code> is not a valid expression in SML.</p>
+
+<h2 id="types">Types</h2>
+
+<p>I mentioned earlier that SML is statically-typed. So, what this means is that the SML compiler will type-check all of your code at compile-type (and will also then fail to compile if it encounters any type errors). We also talked earlier about what being type-safe means, and since SML possesses that quality, a compiled SML program will never produce a type error. In contrast, C is not type-safe – with casting, we can enter areas where
+the compiler might have not noticed a type error (which also means C is statically-typed), but the program later crashes when running because of a type error.</p>
+
+<p>So, let’s define what makes an expression in SML well-typed. Well, an expression in SML is well-typed if it doesn’t cause any type errors. I know, what a boring definition. But let’s dive a bit deeper into this.</p>
+
+<p>At the first level, all values have a type – its type is the type that the value belongs to. So, for example, the value <code class="language-plaintext highlighter-rouge">0</code> has type <code class="language-plaintext highlighter-rouge">int</code>, and we would write this as <code class="language-plaintext highlighter-rouge">0 : int</code> where <code class="language-plaintext highlighter-rouge">e : t</code> means the expression <code class="language-plaintext highlighter-rouge">e</code> has type <code class="language-plaintext highlighter-rouge">t</code>. From the examples given above, we then have:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">3 : int</code></li>
+  <li><code class="language-plaintext highlighter-rouge">"100" : string</code></li>
+</ul>
+
+<p>The following types probably also make a lot of sense:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">(3 + 7) * 10 div 3 : int</code></li>
+  <li><code class="language-plaintext highlighter-rouge">100 div 0 : int</code></li>
+  <li><code class="language-plaintext highlighter-rouge">"100" ^ "100" : string</code></li>
+  <li><code class="language-plaintext highlighter-rouge">intToString 100 : string</code></li>
+</ul>
+
+<p>Some of these are very straightforward and seem intuitive: for example, why <code class="language-plaintext highlighter-rouge">3 + 7 : int</code>. But, let’s delve into details and understand how expressions beyond just values have their types. Let’s pretend to be a compiler trying to type-check an expression and consider <code class="language-plaintext highlighter-rouge">intToString 100</code>. The general pattern to the compiler will type-check an expression is it will recursively type-check its sub-expressions, and then figure out the type of the overall expression from the types of its sub-expressions (type-checking as a recursive construct matches neatly with the recursive structure of an abstract syntax tree). So, let’s try that.</p>
+
+<ol>
+  <li>This expression is an example of function application where <code class="language-plaintext highlighter-rouge">intToString</code> is a function and <code class="language-plaintext highlighter-rouge">100</code> is the argument.</li>
+  <li>Let’s look at <code class="language-plaintext highlighter-rouge">intToString</code> – it has type <code class="language-plaintext highlighter-rouge">int -&gt; string</code>. This is a function type and follows the form <code class="language-plaintext highlighter-rouge">t1 -&gt; t2</code>, where the function type has input type <code class="language-plaintext highlighter-rouge">t1</code> and output type <code class="language-plaintext highlighter-rouge">t2</code>. In the case of <code class="language-plaintext highlighter-rouge">int -&gt; string</code>, the input type is <code class="language-plaintext highlighter-rouge">int</code> and the output type is <code class="language-plaintext highlighter-rouge">string</code>. So, the input given to the function must be of type <code class="language-plaintext highlighter-rouge">int</code>, and the expression the function application evaluates to (function application here refers to applying arguments to a function) is of type <code class="language-plaintext highlighter-rouge">string</code>.</li>
+  <li>Let’s look at <code class="language-plaintext highlighter-rouge">100</code>. It is a value of type <code class="language-plaintext highlighter-rouge">int</code>.</li>
+  <li>So, now we know the types of the two sub-expressions in this expression: <code class="language-plaintext highlighter-rouge">intToString : int -&gt; string</code> and <code class="language-plaintext highlighter-rouge">100 : int</code>. Let’s now look at the overall expression. There is a rule which describes how to type a function application: a function application <code class="language-plaintext highlighter-rouge">e1 e2</code> (or alternatively, <code class="language-plaintext highlighter-rouge">e1 (e2)</code> – the parentheses are not necessary and we can just write the argument <code class="language-plaintext highlighter-rouge">e2</code> right next to the function <code class="language-plaintext highlighter-rouge">e1</code> to apply it) has type <code class="language-plaintext highlighter-rouge">t2</code> if <code class="language-plaintext highlighter-rouge">e1 : t1 -&gt; t2</code> and <code class="language-plaintext highlighter-rouge">e2 : t1</code>. Let’s plug what we have into that rule. In <code class="language-plaintext highlighter-rouge">intToString 100</code>, we know that <code class="language-plaintext highlighter-rouge">intToString</code> (<code class="language-plaintext highlighter-rouge">e1</code>) has type <code class="language-plaintext highlighter-rouge">int -&gt; string</code> (<code class="language-plaintext highlighter-rouge">t1 -&gt; t2</code>) and <code class="language-plaintext highlighter-rouge">100</code> (<code class="language-plaintext highlighter-rouge">e2</code>) has type <code class="language-plaintext highlighter-rouge">int</code> (<code class="language-plaintext highlighter-rouge">t1</code>). Since the type <code class="language-plaintext highlighter-rouge">int</code> of <code class="language-plaintext highlighter-rouge">100</code> matches the input type of <code class="language-plaintext highlighter-rouge">intToString</code>, which is <code class="language-plaintext highlighter-rouge">int</code> in the overall type <code class="language-plaintext highlighter-rouge">int -&gt; string</code>, we know that <code class="language-plaintext highlighter-rouge">intToString 100</code> (<code class="language-plaintext highlighter-rouge">e1 e2</code>) has type <code class="language-plaintext highlighter-rouge">string</code> (<code class="language-plaintext highlighter-rouge">t2</code>).</li>
+</ol>
+
+<p>Let’s also consider <code class="language-plaintext highlighter-rouge">3 + 7</code>. This expression is also an example of function application as <code class="language-plaintext highlighter-rouge">+</code> is a function – it looks different because it is infixed. Essentially an infixed function is placed between its arguments as opposed to where its arguments follow after the function. So, for example, we write <code class="language-plaintext highlighter-rouge">3 + 4</code> instead of <code class="language-plaintext highlighter-rouge">+ 3 4</code> and put the operator between the operands. So, <code class="language-plaintext highlighter-rouge">+</code> is a function (an infixed one) of type <code class="language-plaintext highlighter-rouge">int * int -&gt; int</code> (here, the <code class="language-plaintext highlighter-rouge">*</code> represents a tuple type – in SML, we pass in multiple arguments by applying a tuple to the function) and is read as a function type (or “arrow type” as it is sometimes called) has the input type of <code class="language-plaintext highlighter-rouge">int * int</code>, a singular tuple of two integers, and has an output type of <code class="language-plaintext highlighter-rouge">int</code>. We then have the types of the operands, <code class="language-plaintext highlighter-rouge">3 : int</code> and <code class="language-plaintext highlighter-rouge">7 : int</code>, and so therefore <code class="language-plaintext highlighter-rouge">3 + 7 : int</code> following our function application typing rule. Finally, as a last example, <code class="language-plaintext highlighter-rouge">7 div 0</code> has type <code class="language-plaintext highlighter-rouge">int</code> because <code class="language-plaintext highlighter-rouge">div : int * int -&gt; int</code>, <code class="language-plaintext highlighter-rouge">7 : int</code>, and <code class="language-plaintext highlighter-rouge">0 : int</code> just as before, again according to the function application typing rule.</p>
+
+<p>Note that we did not have to evaluate an expression to determine its type. We did not have to know that <code class="language-plaintext highlighter-rouge">3 + 7</code> evaluated to <code class="language-plaintext highlighter-rouge">10</code> in order to understand that <code class="language-plaintext highlighter-rouge">3 + 7 : int</code>. The only thing we need in order to figure out an expressions type is the type of its subexpressions, or if it is a value (like <code class="language-plaintext highlighter-rouge">3</code> or <code class="language-plaintext highlighter-rouge">"hello"</code>), its intrinsic type. Note that in this sense, types follow inductive rules – which reflects how you can define SML’s type system through a set of inference rules.</p>
+
+<p>Consider <code class="language-plaintext highlighter-rouge">"100" + 100</code>. We know that <code class="language-plaintext highlighter-rouge">+ : int * int -&gt; int</code>, <code class="language-plaintext highlighter-rouge">"100" : string</code>, and <code class="language-plaintext highlighter-rouge">100 : int</code>. So, the tuple being applied to <code class="language-plaintext highlighter-rouge">+</code> has type <code class="language-plaintext highlighter-rouge">string * int</code>, not <code class="language-plaintext highlighter-rouge">int * int</code> – so even though this is a function application, this fails the function application typing rule. Therefore this expression is <em>not</em> well-typed and the type-checker would raise an error.</p>
+
+<p>There are more complicated expressions in SML that have other typing rules. For example, consider <code class="language-plaintext highlighter-rouge">if true then 3 else 5</code>. This control-flow pattern can be generalized as following <code class="language-plaintext highlighter-rouge">if e1 then e2 else e3</code>, where <code class="language-plaintext highlighter-rouge">if e1 then e2 else e3 : t</code> if <code class="language-plaintext highlighter-rouge">e1 : bool</code>, <code class="language-plaintext highlighter-rouge">e2 : t</code>, and <code class="language-plaintext highlighter-rouge">e3 : t</code>. So, let’s look at <code class="language-plaintext highlighter-rouge">if true then 3 else 5</code>. In this case, <code class="language-plaintext highlighter-rouge">e1</code> is <code class="language-plaintext highlighter-rouge">true</code>, <code class="language-plaintext highlighter-rouge">e2</code> is <code class="language-plaintext highlighter-rouge">3</code>, and <code class="language-plaintext highlighter-rouge">e3</code> is <code class="language-plaintext highlighter-rouge">5</code>. It is true that <code class="language-plaintext highlighter-rouge">e1 : bool</code>, <code class="language-plaintext highlighter-rouge">e2 : t</code>, and <code class="language-plaintext highlighter-rouge">e3 : t</code> where <code class="language-plaintext highlighter-rouge">t</code> is the type <code class="language-plaintext highlighter-rouge">int</code>, so therefore this overall expression has type <code class="language-plaintext highlighter-rouge">int</code>. But, <code class="language-plaintext highlighter-rouge">if true then 3 else "5"</code> is not well-typed.</p>
+
+<p>Here’s a summary of some common types, example of values of that type, and some functions that involve that type.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">int</code>
+    <ul>
+      <li>Examples of values: <code class="language-plaintext highlighter-rouge">~2</code>, <code class="language-plaintext highlighter-rouge">~1</code>, <code class="language-plaintext highlighter-rouge">0</code>, <code class="language-plaintext highlighter-rouge">1</code>, <code class="language-plaintext highlighter-rouge">2</code></li>
+      <li>Examples of functions: <code class="language-plaintext highlighter-rouge">+ : int * int -&gt; int</code>, <code class="language-plaintext highlighter-rouge">- : int * int -&gt; int</code>, <code class="language-plaintext highlighter-rouge">* : int * int -&gt; int</code>, <code class="language-plaintext highlighter-rouge">div : int * int -&gt; int</code>, <code class="language-plaintext highlighter-rouge">~ : int -&gt; int</code></li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">real</code>
+    <ul>
+      <li>Examples of values: <code class="language-plaintext highlighter-rouge">0.0</code>, <code class="language-plaintext highlighter-rouge">1.1</code>, <code class="language-plaintext highlighter-rouge">~1.1</code></li>
+      <li>Examples of functions: <code class="language-plaintext highlighter-rouge">+ : real * real -&gt; real</code>, <code class="language-plaintext highlighter-rouge">-: real * real -&gt; real</code>, <code class="language-plaintext highlighter-rouge">* : real * real -&gt; real</code>, <code class="language-plaintext highlighter-rouge">/ : real * real -&gt; real</code></li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">string</code>
+    <ul>
+      <li>Examples of values: <code class="language-plaintext highlighter-rouge">"hello"</code>, <code class="language-plaintext highlighter-rouge">""</code></li>
+      <li>Examples of functions: <code class="language-plaintext highlighter-rouge">^ : string * string -&gt; string</code>, <code class="language-plaintext highlighter-rouge">intToString : int -&gt; string</code></li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">bool</code>
+    <ul>
+      <li>Examples of values: <code class="language-plaintext highlighter-rouge">true</code>, <code class="language-plaintext highlighter-rouge">false</code></li>
+      <li>Examples of functions: <code class="language-plaintext highlighter-rouge">not : bool -&gt; bool</code></li>
+    </ul>
+  </li>
+</ul>
+
+<p>Note that functions between <code class="language-plaintext highlighter-rouge">int</code>s and <code class="language-plaintext highlighter-rouge">real</code>s are overloaded <em>except</em> for division: <code class="language-plaintext highlighter-rouge">div</code> is the name of the division for <code class="language-plaintext highlighter-rouge">int</code>s, and <code class="language-plaintext highlighter-rouge">/</code> is the name
+of the function for <code class="language-plaintext highlighter-rouge">real</code>s. So, note that the example expression given earlier, <code class="language-plaintext highlighter-rouge">(3 + 7) * 10 / 3</code> is actually not well-typed.</p>
+
+<h2 id="evaluation-and-an-example">Evaluation and an example</h2>
+
+<p>First, let’s talk about values. They’ve been mentioned quite a few times and you probably have an intuitive sense of them, but let’s talk about them explicitly for a bit. Values are expressions. Not all expressions are values. Values are defined as expressions which cannot be evaluated any further (or by some semantics, evaluate to itself). Examples of values include <code class="language-plaintext highlighter-rouge">3</code>, <code class="language-plaintext highlighter-rouge">"hello"</code>, <code class="language-plaintext highlighter-rouge">false</code>, or <code class="language-plaintext highlighter-rouge">~1.1</code>.</p>
+
+<p>Note how we said earlier that type-checking did not involve evaluation expressions. So, for example, <code class="language-plaintext highlighter-rouge">100 div 0</code> is actually an expression which does not have a value: but, it is well-typed. In order to evaluate an expression, it must be well-typed. Expressions that are not well-typed cannot be evaluated, and therefore have no value. But, even if an expression is well-typed, it might not evaluate to a value.</p>
+
+<p>Different expressions have rules on how to evaluate them. We’ll talk more about some more complicated examples later, but to start, SML expressions are eagerly evaluated. Essentially, all arguments that are applied to a function must be a value. When we consider <code class="language-plaintext highlighter-rouge">3 + (7 + 4)</code>, we do not pass <code class="language-plaintext highlighter-rouge">3</code> and <code class="language-plaintext highlighter-rouge">7 + 4</code> to <code class="language-plaintext highlighter-rouge">+</code> in the outer function; instead, we will apply <code class="language-plaintext highlighter-rouge">3</code> and <code class="language-plaintext highlighter-rouge">11</code> to <code class="language-plaintext highlighter-rouge">+</code>. So, we had to evaluate the sub-expressions in the expression first to values, and then apply those values – so SML “eagerly” evaluates its sub-expressions before applying them in overall expressions. This is in contrast to lazy evaluation, where an expression is not evaluated until it is called. For example, consider this function (this is an example of a function declaration which we’ll jump into later, but this function should be simple enough to follow along):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>fun evaluateToTwo (x : int) : int = 2
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Note that <code class="language-plaintext highlighter-rouge">evaluateToTwo : int -&gt; int</code> and it takes an argument <code class="language-plaintext highlighter-rouge">x : int</code>, and… never uses it and evaluates to <code class="language-plaintext highlighter-rouge">2</code>. Now, let’s consider two function applications of <code class="language-plaintext highlighter-rouge">evaluateToTwo (3 div 0)</code>. Note that <code class="language-plaintext highlighter-rouge">3 div 0 : int</code>, so this expression is well-typed and has type <code class="language-plaintext highlighter-rouge">int</code>.</p>
+
+<p>First, let’s try to evaluate this eagerly. So, we have to first evaluate the function’s arguments to a value. But, when we try to evaluate <code class="language-plaintext highlighter-rouge">3 div 0</code>, it raises an exception.</p>
+
+<p>Second, let’s try to evaluate this eagerly. So, we step into the function body, <code class="language-plaintext highlighter-rouge">2</code>, and we evaluate it (because we are now using this expression). <code class="language-plaintext highlighter-rouge">2</code> is a value, so the entire expression evalautes to <code class="language-plaintext highlighter-rouge">2</code>.</p>
+
+<p>So, this expression evaluates differently depending on whether the language eagerly evaluates or lazily evaluates. In conclusion, evaluation in SML goes from left-to-right and is eager, and we can only evalute well-typed expressions. Let’s go through one last simple example (mostly just to touch on the left-to-right part). In here, note that <code class="language-plaintext highlighter-rouge">=&gt;</code> means “steps to”.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>(3 + 7) * (2 + 3)
+=&gt; 10 * (2 + 3)
+=&gt; 10 * 5
+=&gt; 50
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>There’s usually a distinction between “steps to (in one step)” or “steps to (in a finite number of steps)” and further breakdowns. I am honestly just being lazy and using <code class="language-plaintext highlighter-rouge">=&gt;</code> as the latter. We’ll go into this a bit more also when we talk about extensional equivalence and referential transparency.</p>
+
+<h2 id="declarations">Declarations</h2>
+
+<p>In addition to expressions, we can also create bindings through declarations. Bindings are couplings in our environment that will bind an expression (which is eagerly evaluated) to a variable. This is similar to the idea of variables in other languages, but the bindings that declarations make are immutable. We cannot “update” a variable in SML.</p>
+
+<h3 id="val">val</h3>
+
+<p><code class="language-plaintext highlighter-rouge">val</code> is a keyword that lets us make declarations in the following way: <code class="language-plaintext highlighter-rouge">val [variable] : [type] = [expression]</code> where <code class="language-plaintext highlighter-rouge">[variable]</code> is the name of the variable you are declaring that has some type <code class="language-plaintext highlighter-rouge">[type]</code>, and <code class="language-plaintext highlighter-rouge">[expression]</code> is the expression <code class="language-plaintext highlighter-rouge">[variable]</code> is being bound to. So, for example, we can do <code class="language-plaintext highlighter-rouge">val x : int = 2 + 3</code>. We represent bindings with the syntax <code class="language-plaintext highlighter-rouge">[5/x]</code>, which means <code class="language-plaintext highlighter-rouge">5</code> is bound to the variable <code class="language-plaintext highlighter-rouge">x</code>.</p>
+
+<p>Consider the <code class="language-plaintext highlighter-rouge">let [declarations] in [expression] end</code> syntax. This statement evaluates to the <code class="language-plaintext highlighter-rouge">[expression]</code> part with the bindings created in <code class="language-plaintext highlighter-rouge">[declarations]</code>, but the scope of <code class="language-plaintext highlighter-rouge">[declarations]</code> is only in <code class="language-plaintext highlighter-rouge">[expression]</code>. What I mean by the scope of <code class="language-plaintext highlighter-rouge">[declarations]</code> is that the bindings created in <code class="language-plaintext highlighter-rouge">[declarations]</code> are only valid in <code class="language-plaintext highlighter-rouge">[expression]</code>, and anywhere else they are invalid. Here’s an example:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>let val x : int = 3 in x + 5 end
+=&gt; [3/x] x + 5
+=&gt; 8
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>But, if I later on have <code class="language-plaintext highlighter-rouge">x + 6</code> after the above, there will be an error because the compiler will not know what the variable <code class="language-plaintext highlighter-rouge">x</code> is – because it is only in scope (or present in the environment) while we are in that <code class="language-plaintext highlighter-rouge">[expression]</code> block.</p>
+
+<h3 id="fun">fun</h3>
+
+<p>We can create function declarations in SML with the <code class="language-plaintext highlighter-rouge">fun</code> keyword. Here’s an example of a function (it’s the factorial function)!</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>fun fact 0 = 1
+  | fact (n : int) = n * fact (n - 1)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>How this function works we’ll go into more next time (when we talk about pattern-matching), but in the meantime, this declaration binds the function value to the variable <code class="language-plaintext highlighter-rouge">fact</code>. So, <code class="language-plaintext highlighter-rouge">fact : int -&gt; int</code>.</p>
+
+<h3 id="more-examples-of-evaluation">More examples of evaluation</h3>
+
+<p>Let’s look at the following function declaration and subsequent evaluation just to tie everything together.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>fun addTwo (x : int) = x + 2
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>So, if we are evaluating the above, in a well-typed function application, we evaluate to the body of the function with the bindings created from applying the arguments to the parameters.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>addTwo 5
+=&gt; [5 / x] x + 2
+=&gt; 7
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>I also said earlier that bindings are immutable. So, what happens if I do the following?</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>val x : int = 3
+val x : int = 4
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>It doesn’t update <code class="language-plaintext highlighter-rouge">x</code> or bind values to that variable twice – instead, the second declaration shadows the earlier one. The earlier declaration still exists! It’s just been shadowed by the second one and isn’t accessible by any bindings that take place after the second declaration that collides with its namespace. Let’s make this a bit more complicated to see how that works.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre>val x : int = 3
+fun addThree (y : int) = y + x
+val a : int = addThree 3
+val x : int = 4
+fun addThreeAgain (y : int) = y + x
+val b : int = addThree 3
+val c : int = addThreeAgain 3
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>In this example, <code class="language-plaintext highlighter-rouge">a</code> has value <code class="language-plaintext highlighter-rouge">6</code> and <code class="language-plaintext highlighter-rouge">c</code> has value <code class="language-plaintext highlighter-rouge">7</code>. But what about <code class="language-plaintext highlighter-rouge">b</code>? It has value <code class="language-plaintext highlighter-rouge">6</code>, because at the time that <code class="language-plaintext highlighter-rouge">addThree</code> was declared, what was in scope is <code class="language-plaintext highlighter-rouge">[3 / x]</code>, and when we create declarations, we also fold in any existing bindings at the time. To make this a bit clearer, I’ll rewrite the above with the bindings that are in-scope at that time:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre>val x : int = 3
+[3/x] fun addThree (y : int) = [3/x] y + x
+[3/x] val a : int = addThree 3
+val x : int = 4
+[4/x] fun addThreeAgain (y : int) = [4/x] y + x
+[4/x] val b : int = addThree 3
+[4/x] val c : int = addThreeAgain 3
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>But what happens in evaluating <code class="language-plaintext highlighter-rouge">addThree 3</code> when declaring <code class="language-plaintext highlighter-rouge">b</code> is:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>addThree 3
+=&gt; [3/x][3/y] y + x
+=&gt; 6
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+
+    
+    
+      <p class="signoff"><em><a href="/">Return home</a></em></p>
+    
+    
+  </article>
+
+  
+
+
+
+
+  
+
+</body>
+</html>
+

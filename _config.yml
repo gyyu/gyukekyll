@@ -1,0 +1,28 @@
+title: Gyudon
+author: Grace Yu
+description: cats are great
+baseurl: ''
+future: true
+
+permalink: '/:categories/:slug/'
+
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    block:
+      line_numbers: true
+
+gems:
+  - jekyll-feed
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - .gitignore
+  - tags
+
+header_includes:
+  - '<link rel="icon" sizes="16x16" href="/assets/images/favicon.ico">'
+  - '<link rel="stylesheet" href="/assets/css/extras.css">'

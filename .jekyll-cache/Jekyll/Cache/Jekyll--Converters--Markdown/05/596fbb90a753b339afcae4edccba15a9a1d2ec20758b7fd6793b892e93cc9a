@@ -1,0 +1,186 @@
+I"A<p><a name="blog"></a></p>
+
+<ul>
+  <li><a href="#blog">Blog</a><sup id="fnref:marker" role="doc-noteref"><a href="#fn:marker" class="footnote">1</a></sup></li>
+  <li><a href="#about">About</a></li>
+  <li><a href="#notes">Notes and Teachings</a></li>
+</ul>
+
+<h2 id="pins">Pins</h2>
+
+<p>Here are a few things I’ve written that I either feel particularly strong about or have the most to 
+“say” – so I’ve pinned them here for faster reference.</p>
+
+<ul>
+  <li><a href="summer-at-riot/">Summer at Riot</a></li>
+</ul>
+
+<h2 id="posts">Posts</h2>
+
+<h3 id="2020">2020</h3>
+<ul>
+  <li><a href="/2020-reflection/">Trees and Changing Leaves</a>, December 28</li>
+  <li><a href="/what-i-learned-2/">What I Learned (and Still Don’t Know): Part 2</a>, November 15</li>
+  <li><a href="/facebook-and-the-internet/">Facebook and the Internet</a>, May 24</li>
+  <li><a href="/what-i-learned-1/">What I Learned (and Still Don’t Know): Part 1</a>, April 16</li>
+  <li><a href="/fp-2/">Functional Programming Part 2: Evaluation, Functions, and Patterns</a>, April 15</li>
+  <li><a href="/fp-1/">Functional Programming Part 1: SML Basics (and Intro)</a>, March 30</li>
+  <li><a href="/internalized-misogyny/">Internalized Misogyny</a>, March 29</li>
+</ul>
+
+<h3 id="2019">2019</h3>
+<ul>
+  <li><a href="/summer-at-riot/">A Summer at Riot Games</a>, December 30</li>
+</ul>
+
+<p><a href="#blog">Back to Top</a></p>
+
+<p><a name="about"></a></p>
+
+<h1 id="about">About</h1>
+
+<p>I am a software engineer at Riot Games, and have been there since January 2020. I
+studied computer science with a minor in mathematical sciences at Carnegie
+Mellon University, and graduated December 2019. Hopefully out to do good in this world.</p>
+
+<h3 id="why-does-this-place-exist">Why does this place exist?</h3>
+
+<blockquote>
+  <p>You are all computer scientists.</p>
+
+  <p>You know what FINITE AUTOMATA can do.</p>
+
+  <p>You know what TURING MACHINES can do.</p>
+
+  <p>For example, Finite Automata can add but not multiply.</p>
+
+  <p>Turing Machines can compute any computable function.</p>
+
+  <p>Turing Machines are incredibly more powerful than Finite Automata.</p>
+
+  <p>Yet the only difference between a FA and a TM is that the TM, unlike the FA, has paper and pencil.</p>
+
+  <p>Think about it.</p>
+
+  <p>It tells you something about the power of writing.</p>
+
+  <p>Without writing, you are reduced to a finite automaton.</p>
+
+  <p>With writing you have the extraordinary power of a Turing machine.</p>
+
+  <p>– Manuel Blum, <a href="https://www.cs.cmu.edu/~mblum/research/pdf/grad.html"><em>Advice to a Beginning Graduate Student</em></a></p>
+</blockquote>
+
+<blockquote>
+  <p>First have something to say,</p>
+
+  <p>Second say it,</p>
+
+  <p>Third stop when you have said it, and</p>
+
+  <p>Finally give it an accurate title.”</p>
+
+  <p>– John Shaw Billings</p>
+</blockquote>
+
+<p>I’ve always loved writing. So there’s a very personal reason why this place exists, which is for my own enjoyment.
+But there’s also some things that I like to believe I have to say, and perhaps some people out there who might
+find it mildly valuable. And while I still have that feeling, I’ll keep this place alive.</p>
+
+<h3 id="interests">Interests</h3>
+
+<ul>
+  <li>Gaming (StarCraft, League of Legends, VALORANT?)</li>
+  <li>Functional programming</li>
+  <li>Machine learning</li>
+  <li>Computer systems</li>
+  <li>Piano</li>
+  <li>Drawing (sketching, watercolor, acrylic, charcoal)</li>
+  <li>Singing</li>
+  <li>Cooking</li>
+  <li>Water rights and the environment (read <em>The Ripple Effect</em> by Alex Prud’Homme)</li>
+  <li>Reading (book reviews incoming, hopefully)</li>
+  <li>Biology</li>
+  <li>Writing</li>
+  <li><a href="https://medium.com/matter/the-web-we-have-to-save-2eb1fe15a426">Saving the web</a></li>
+  <li>Trying to become an informed citizen of the world</li>
+</ul>
+
+<h3 id="current-goals-and-progress">Current Goals (and Progress)</h3>
+
+<ul>
+  <li>Complete the 100 Days of Code challenge</li>
+  <li>Read 12 books
+    <ul>
+      <li><em>Water for Elephants</em> by Sara Gruen (sometime in October 2019)</li>
+      <li><em>The Three Body Problem</em> by Liu Cixin (sometime in November 2019)</li>
+      <li><em>Never Let Me Go</em> by Kazuo Ishiguro (11/28/2019)</li>
+      <li><em>Algorithms to Live By</em> by Brian Christian and Tom Griffiths (12/30/2020)</li>
+    </ul>
+  </li>
+  <li>Exercise regularly</li>
+</ul>
+
+<h3 id="images">Images</h3>
+
+<p>The image used as an icon is my Chinese name painted by my grandmother before she passed away. She did Chinese calligraphy, and I asked her to write my name. This was before her illness worsened, but you can already see the tremors seeping into her strokes.</p>
+
+<p>The image used in the homepage jumbotron is made by David Jin, a very talented friend of mine.</p>
+
+<h3 id="just-a-thermodynamic-miracle">“just a thermodynamic miracle”</h3>
+
+<p>The tagline from my page is from <em>Watchmen</em> by Alan Moore. It’s from a quote by Dr. Manhattan that I love and has been dear to me through tough times.</p>
+
+<p>It’s a scene where Dr. Manhattan tells Laurie that he doesn’t think her life is meaningless while they are on Mars. It goes:</p>
+
+<blockquote>
+  <p>Dr. Manhattan: Thermodynamic miracles… events with odds so astronomical they’re effectively impossible, like oxygen spontaneously becoming gold. I long to observe such a thing.
+And yet, in each human coupling, a thousand million sperm vie for a single egg. Multiple those odds by countless generations, against the odds of your ancestors being alive; meeting; siring this precise son; that exact daughter…</p>
+
+  <p>…Until your mother loves a man she has every reason to hate, and of that union, of the thousand million children competing for fertilization, it was you, only you, that emerged.</p>
+
+  <p>To distill so specific a form from that chaos of improbability, like turning air to gold… that is the crowning unlikelihood.</p>
+
+  <p>The thermodynamic miracle.</p>
+
+  <p>Laurie: But… if me, my birth, if that’s a thermodynamic miracle… I mean, you could say that about anybody in the world.</p>
+
+  <p>Dr. Manhattan: Yes. Anybody in the world. But the world is so full of people, so crowded with these miracles that they become commonplace and we forget.</p>
+
+  <p>I forget.</p>
+
+  <p>We gaze continuously at the world and it grows dull in our perceptions. Yet seen from another’s vantage point, as if new, it may still take the breath away.</p>
+
+  <p>Come… Dry your eyes, for you are life, rare than a quark and unpredictable beyond the dreams of Heisenberg; the clay in which the forces that shape all things leave their fingerprints most clearly.</p>
+
+  <p>Dry your eyes… and let’s go home.</p>
+
+  <p>– Alan Moore, <em>Watchmen</em></p>
+</blockquote>
+
+<p><a href="#blog">Back to Top</a>
+<a name="notes"></a></p>
+
+<h1 id="notes">Notes</h1>
+
+<h2 id="functional-programming">Functional Programming</h2>
+<h3 id="writeups">Writeups</h3>
+
+<ul>
+  <li><a href="fp-1/">Part 1</a></li>
+  <li><a href="fp-2/">Part 2</a></li>
+</ul>
+
+<h2 id="apcs">APCS</h2>
+
+<p>Link to YouTube video playlist <a href="https://www.youtube.com/playlist?list=PLJs5XCkocJ-eW5CLIW0KGlLOTSUuBEg9f">here</a>.</p>
+
+<p><a href="#blog">Back to Top</a></p>
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:marker" role="doc-endnote">
+      <p>&lt;– You are here! <a href="#fnref:marker" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+:ET

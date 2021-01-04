@@ -1,0 +1,167 @@
+I"�K<p>In my earlier post, I talked about the basic of SML syntax and tried to give a bit of a set-up about functional programming in general. It’s unclear to me how effective it was, so please send me feedback on how to improve or what wasn’t clear (I’m already rereading and musing about various things I think I could have included, or better ways to explain a concept). It’s also been a while since I taught, so as I’m writing these up I’m revisiting and reviewing topics myself.</p>
+
+<p>Anyways, so here’s the next part. This will review and go a bit deeper into evaluation and two key topics, extensional equivalence and referential transparency, and then will introduce patterns and pattern-matching.</p>
+
+<h1 id="video-tbd">Video (TBD)</h1>
+
+<p>Yes, yes. One day.</p>
+
+<h1 id="on-to-the-write-up">On to the write-up!</h1>
+
+<h2 id="definitions">Definitions</h2>
+
+<h3 id="evaluation-revisited">Evaluation (revisited)</h3>
+
+<p>We talked last time about expressions being the most basic “unit” in SML – and talked about how
+declarative programming differed from imperative programming in that these expressions were not instructions,
+but mathematical statements. Expressions may or not be well-typed, and well-typed expressions may or may not evaluate to a value. This evaluation generally takes place left-to-right and occurs eagerly. For example, <code class="language-plaintext highlighter-rouge">3 + 4</code> evaluates to <code class="language-plaintext highlighter-rouge">7</code>, <code class="language-plaintext highlighter-rouge">3 div 0</code> has well-typed and has type <code class="language-plaintext highlighter-rouge">int</code> but does not evaluate to a value (instead, this expression raises an exception).</p>
+
+<p>We used this syntax, <code class="language-plaintext highlighter-rouge">=&gt;</code>, to notate “stepping to”. So, this is honestly god-awful to write in Markdown (as opposed to in LaTeX) but alas – let’s talk a bit more formally about this. We write <code class="language-plaintext highlighter-rouge">e</code> for some arbitrary expression in SML and <code class="language-plaintext highlighter-rouge">v</code> for some arbitrary value (which are also expressions!). And, we use the following:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">e =&gt;_v v</code> means that expression <code class="language-plaintext highlighter-rouge">e</code> evaluates to value <code class="language-plaintext highlighter-rouge">v</code> (here I’m using the symbol <code class="language-plaintext highlighter-rouge">=&gt;_v</code> – I’m trying my best)</li>
+  <li><code class="language-plaintext highlighter-rouge">e =&gt;_1 e'</code> means that expression <code class="language-plaintext highlighter-rouge">e</code> reduces to expression <code class="language-plaintext highlighter-rouge">e'</code> in 1 step</li>
+  <li><code class="language-plaintext highlighter-rouge">e =&gt;_k e'</code> means that expression <code class="language-plaintext highlighter-rouge">e</code> reduces to expression <code class="language-plaintext highlighter-rouge">e'</code> in <em>k</em> steps</li>
+  <li><code class="language-plaintext highlighter-rouge">e =&gt; e'</code> means that expression <code class="language-plaintext highlighter-rouge">e</code> reduces to <code class="language-plaintext highlighter-rouge">e'</code> in 0 or more steps</li>
+</ul>
+
+<p>What we mean by steps here is a step in operational semantics, and is <em>not</em> what the actual operations are in SML. We’ll mostly just write <code class="language-plaintext highlighter-rouge">e =&gt; e'</code> for reduction when we’re concerned with correctness (and not looking at complexity, as we won’t be concerned with the number of steps the reduction took).</p>
+
+<p>We also talked about how a value was an expression, but an expression was not necessarily a value. Let’s also look here at the relationship between reduction and evaluation. If <code class="language-plaintext highlighter-rouge">e =&gt;_v v</code>, then that implies that <code class="language-plaintext highlighter-rouge">e =&gt;_1 e' =&gt;_1 ... =&gt;_1 v</code> and vice versa. Also, values evaluate to themselves in 0 steps – so, we can write <code class="language-plaintext highlighter-rouge">v =&gt; v</code> (trivially) but there is no such <code class="language-plaintext highlighter-rouge">e</code> where <code class="language-plaintext highlighter-rouge">v =&gt;_1 e</code>.</p>
+
+<h3 id="extensional-equivalence">Extensional Equivalence</h3>
+
+<p>Let me first give the formal definition of extensional equivalence. We say that two expressions, <code class="language-plaintext highlighter-rouge">e</code> and <code class="language-plaintext highlighter-rouge">e'</code> of the same type are extensionally equivalent whenever one of the following is true:</p>
+
+<ol>
+  <li>Evaluation of <code class="language-plaintext highlighter-rouge">e</code> produces the same value as the evaluation of <code class="language-plaintext highlighter-rouge">e'</code>.</li>
+  <li>Evaluation of <code class="language-plaintext highlighter-rouge">e</code> and <code class="language-plaintext highlighter-rouge">e'</code> both loop forever.</li>
+  <li>Evaluation of <code class="language-plaintext highlighter-rouge">e</code> raises the same exception as does the evaluation of <code class="language-plaintext highlighter-rouge">e'</code>.</li>
+</ol>
+
+<p>Extensional equivalence is an equivalence relation on well-typed SML expressions of the same type. So, for example, <code class="language-plaintext highlighter-rouge">3 + 7</code> and <code class="language-plaintext highlighter-rouge">10</code> are extensionally equivalent. Extensional equivalence gives us the basis to make “equals-for-equals” claims – it makes intuitive sense why <code class="language-plaintext highlighter-rouge">3 + 7</code> and <code class="language-plaintext highlighter-rouge">3 + (3 + 4)</code> evaluate to the same value, as one way to look at it is <code class="language-plaintext highlighter-rouge">7</code> and <code class="language-plaintext highlighter-rouge">3 + 4</code> essentially “function in the same way” and we can replace one expression for the other in a larger expression to have the same outcome. Note that this “equals-for-equals” intuitive substitution as we know is only possible in a world without side-effects.</p>
+
+<p>Extensional equivalence is a concept that comes from set theory, and we’ll be using it quite a bit in these functional programming notes to talk about correctness and reason about our programs. We’ll use the symbol <code class="language-plaintext highlighter-rouge">~=</code> to denote extensional equivalence.</p>
+
+<h3 id="referential-transparency">Referential Transparency</h3>
+
+<p>That “equals-for-equals” concept I mentioned earlier has a name! It’s called referential transparency. The concept is that in a functional program, we can replace any expression with another extensionally equivalent one without affecting the value of the program.</p>
+
+<p>We seemingly do this “equals-for-equals” substitution all the time, but extensional equivalence and referential transparency are powerful constructs despite how intuitive they are. They can be leveraged in program optimization and simplifying steps in order to write better and cleaner programs.</p>
+
+<p>Referential transparency is a property which still does exist in the imperative world with side-effects – we just have to take those side-effects into account in addition to values in what we define “equivalent” to be. Because in a functional program with no side-effects, we can evaluate an expression more than once and get the exact same outcome every time. Additionally then, the order in which we evaluate expressions has no difference in the value of the program which makes employing and reasoning about parallel evaluation strategies much more straightforward.</p>
+
+<h3 id="totality">Totality</h3>
+
+<p>Another property I want to introduce is totality. A function <code class="language-plaintext highlighter-rouge">f : t -&gt; t'</code> is total if for all possible values <code class="language-plaintext highlighter-rouge">v</code> of type <code class="language-plaintext highlighter-rouge">t</code>, <code class="language-plaintext highlighter-rouge">f v</code> evaluates to a value. So, if a function raises an exception on some inputs or loops forever, it is not total – the division function, for example, is not total because it raises an exception when dividing by 0. Totality is a useful tool for talking about correctness, as we could justify some expression <code class="language-plaintext highlighter-rouge">x + f y</code> as reducing to a value if they are all appropriately typed and <code class="language-plaintext highlighter-rouge">x</code> and <code class="language-plaintext highlighter-rouge">y</code> are values and <code class="language-plaintext highlighter-rouge">f</code> is total.</p>
+
+<h3 id="functions-are-values">Functions are values!</h3>
+
+<p>A function value consists of an anonymous lambda expression and an environment of bindings for any non-local variables that are used in the scope of the function. This combination of a lambda expression and environment is a closure. We then often bind these function values to variables with the <code class="language-plaintext highlighter-rouge">fun</code> keyword.</p>
+
+<h2 id="patterns">Patterns</h2>
+
+<p>A pattern is either a constant (e.g. <code class="language-plaintext highlighter-rouge">0</code>, <code class="language-plaintext highlighter-rouge">true</code>), variable (e.g. <code class="language-plaintext highlighter-rouge">x : int</code>), wildcard (<code class="language-plaintext highlighter-rouge">_</code>), or a tuple of patterns. Patterns are linear (so each variable can only occur at most once) and are also recursively defined. Additionally, when we talk about datatype declarations, we’ll also see that datatype constructors applied to an argument is also another type of pattern.</p>
+
+<p>Pattern-matching is the process by which a value <em>matches</em> a pattern, and the bindings this matching produces. Each pattern has a set of values that it matches with, and a value successfully matches a pattern if it is a member of that set. Additionally, different patterns also have special rules about what bindings occur with that matching.</p>
+
+<ul>
+  <li>Constant patterns are matched by values that are that constant. For example, the pattern <code class="language-plaintext highlighter-rouge">0</code> will only match the value <code class="language-plaintext highlighter-rouge">0</code> (and trying to match <code class="language-plaintext highlighter-rouge">1</code> with the pattern <code class="language-plaintext highlighter-rouge">0</code> will fail).</li>
+  <li>Variable patterns are matched by all values of the respective type, and will also bind the matched value to that variable. For example, matching <code class="language-plaintext highlighter-rouge">0</code> to <code class="language-plaintext highlighter-rouge">x : int</code> will succeed and also create the binding <code class="language-plaintext highlighter-rouge">[0 / x]</code>. All values of type <code class="language-plaintext highlighter-rouge">int</code> will match this pattern. Values not of that type, like <code class="language-plaintext highlighter-rouge">true</code>, will fail though.</li>
+  <li>Wildcard patterns are matched by all values of its respective type like the variable pattern. However, wildcard patterns do not create any bindings.</li>
+  <li>Tuples of patterns are then matched by tuples of respective values that match those patterns. So for example, <code class="language-plaintext highlighter-rouge">(0, true)</code> will match the pattern <code class="language-plaintext highlighter-rouge">(0, x : bool)</code>.</li>
+</ul>
+
+<h2 id="using-patterns">Using Patterns</h2>
+
+<h3 id="functions">Functions</h3>
+
+<p>Patterns can be used in clausal function definitions. So, the general form of a function definition is:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>(fn p1 =&gt; e1
+  | p2 =&gt; e2
+  ...
+  | p_n =&gt; e_n)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>So, such a function will have type <code class="language-plaintext highlighter-rouge">t1 -&gt; t2</code> if every pattern <code class="language-plaintext highlighter-rouge">p_i</code> matches type <code class="language-plaintext highlighter-rouge">t1</code> and every expression <code class="language-plaintext highlighter-rouge">e_i</code> matches type <code class="language-plaintext highlighter-rouge">t2</code>. For example, <code class="language-plaintext highlighter-rouge">(fn (x : int, y : int) =&gt; (x + 1) * (y - 1))</code> has type <code class="language-plaintext highlighter-rouge">int * int -&gt; int</code> since <code class="language-plaintext highlighter-rouge">(x + 1) * (y - 1)</code> has type <code class="language-plaintext highlighter-rouge">int</code> assuming <code class="language-plaintext highlighter-rouge">x</code> and <code class="language-plaintext highlighter-rouge">y</code> are both of type int, so then the pattern <code class="language-plaintext highlighter-rouge">(x, y)</code> must match type <code class="language-plaintext highlighter-rouge">int * int</code>. Here I explicitly typed it, but if I didn’t and just wrote <code class="language-plaintext highlighter-rouge">(fn (x, y) =&gt; (x + 1) * (y - 1))</code> this would still hold.</p>
+
+<p>So then when evaluating the application of an argument to a function, we are actually pattern-matching. Note that we eagerly evaluate here as well, and we only apply values to patterns after we’ve reduced all expressions. We first evaluate the expression, then evaluate the argument, and if both of these evaluations produce values, the resulting expression (where <code class="language-plaintext highlighter-rouge">v</code> is some generic value)</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>(fn p1 =&gt; e1
+  | p2 =&gt; e2
+  ...
+  | p_n =&gt; e_n) v
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>takes place by trying to match <code class="language-plaintext highlighter-rouge">v</code> which each pattern in order, starting with <code class="language-plaintext highlighter-rouge">p1</code> and going to <code class="language-plaintext highlighter-rouge">p_n</code>. If the value matches a pattern and nothing prior, it will create any bindings according to that pattern and then reduce to the respective expression.</p>
+
+<p>Note – if we apply an argument to a function and the value fails to match any of the function’s clauses (patterns), he evaluation results in a “non-exhaustive match failure”, an error raised at run-time.</p>
+
+<h3 id="cases">Cases</h3>
+
+<p>I gave an example of cases in the last post, but I’ll visit them again now that we’ve discussed patterns. A case expression has the form</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>(case e of
+  p1 =&gt; e1
+| p2 =&gt; e2
+...
+| p_n =&gt; e_n)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Note that this is an <em>expression</em>, not a statement. A well-formed expression has a type and can be evaluated. A case expression is well-typed if the following holds:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">e</code> is of type <code class="language-plaintext highlighter-rouge">t</code> and each <code class="language-plaintext highlighter-rouge">p_1</code>, …, <code class="language-plaintext highlighter-rouge">p_n</code> is also of type <code class="language-plaintext highlighter-rouge">t</code></li>
+  <li><code class="language-plaintext highlighter-rouge">e_1</code>, …, <code class="language-plaintext highlighter-rouge">e_n</code> are all of some type <code class="language-plaintext highlighter-rouge">t'</code></li>
+</ul>
+
+<p>Then, the case expression has type <code class="language-plaintext highlighter-rouge">t'</code>. Similarly to earlier, the pattern-matching in the case expression also produces bindings that exist in the scope of each clause.</p>
+
+<p>For example, <code class="language-plaintext highlighter-rouge">case 3 of 0 =&gt; "hi" | x =&gt; "bye" | _ =&gt; "was this clause necessary?"</code> will evaluate to <code class="language-plaintext highlighter-rouge">[3 / x] "bye"</code>. Note that we didn’t evaluate to the first clause because trying to match <code class="language-plaintext highlighter-rouge">3</code> to <code class="language-plaintext highlighter-rouge">0</code> failed! If it did succeed (if the pattern was <code class="language-plaintext highlighter-rouge">0</code>, note that this pattern-matching does not create any bindings whereas the variable pattern does). Additionally, the last clause is redundant because no value will fail to match the variable pattern but successfully match to the wildcard pattern. Also just to emphasize again: a wildcard pattern and variable pattern match the same set of values, but a variable pattern creates bindings whereas a wildcard pattern does not!</p>
+
+<h3 id="an-example">An example</h3>
+
+<p>We talked about the factorial function earlier. Let’s step through an example evaluation with it again.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>fun fact 0 = 1
+  | fact n = n * fact (n-1)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>So, let’s look at <code class="language-plaintext highlighter-rouge">fact 3</code>. Note that when we evaluate this, we are first reducing the function and <code class="language-plaintext highlighter-rouge">3</code> to a value, and then trying to pattern-match. So, <code class="language-plaintext highlighter-rouge">3</code> will fail the pattern match to <code class="language-plaintext highlighter-rouge">0</code>, but then succeed to <code class="language-plaintext highlighter-rouge">n</code> and also create the binding <code class="language-plaintext highlighter-rouge">[3 / n]</code> and reduce to the expression <code class="language-plaintext highlighter-rouge">[3 / n] n * fact (n-1)</code>.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre>fact 3
+~=[3 / n] n * fact (n-1)
+~= 3 * fact 2
+~= 3 * [2 / n] n * fact (n - 1)
+~= 3 * 2 * fact 1
+~= 3 * 2 * [1 / n] n * fact (n - 1)
+~= 3 * 2 * 1 * fact 0
+~= 3 * 2 * 1 * 1
+~= 6
+</pre></td></tr></tbody></table></code></pre></div></div>
+:ET
